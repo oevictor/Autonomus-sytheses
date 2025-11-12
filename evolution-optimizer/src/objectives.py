@@ -1,4 +1,5 @@
 import math
+from diversification import MaxMinDiversification
 
 def scherrer_from_vector(x):
     """Scherrer equation objective.
@@ -30,8 +31,6 @@ OBJECTIVES = {
     '1': {
         'name': 'Scherrer equation (crystallite size)',
         'func': scherrer_from_vector,
-        # bounds: (min, max) for each variable in the vector [K, lambda_, B, theta]
-        # reasonable defaults (user can change later)
         'bounds': [
             (0.5, 1.0),       # K (shape factor)
             (0.5, 2.0),       # lambda_ (Å)
@@ -39,8 +38,10 @@ OBJECTIVES = {
             (0.0, math.pi/2)  # theta (radians)
         ],
         'dims': 4,
-        'minimize': False,  # typically one might want to estimate D (we return D); optimization goal depends on use-case
-        'description': 'D = (K * lambda) / (B * cos(theta))'
+        'minimize': False,
+        'description': 'D = (K * lambda) / (B * cos(theta))',
+        'use_maxmin': True,
+        'param_names': ['K', 'λ (Å)', 'B (rad)', 'θ (rad)']
     },
     '2': {
         'name': 'Sphere function (3D)',
@@ -48,7 +49,8 @@ OBJECTIVES = {
         'bounds': [(-5.0, 5.0)] * 3,
         'dims': 3,
         'minimize': True,
-        'description': 'Simple quadratic minimization'
+        'description': 'Simple quadratic minimization',
+        'use_maxmin': False
     },
     '3': {
         'name': 'Rastrigin (3D)',
@@ -56,7 +58,8 @@ OBJECTIVES = {
         'bounds': [(-5.12, 5.12)] * 3,
         'dims': 3,
         'minimize': True,
-        'description': 'Multimodal benchmark function'
+        'description': 'Multimodal benchmark function',
+        'use_maxmin': False
     },
     '4': {
         'name': 'Rosenbrock (3D)',
@@ -64,7 +67,8 @@ OBJECTIVES = {
         'bounds': [(-2.0, 2.0)] * 3,
         'dims': 3,
         'minimize': True,
-        'description': 'Valley-shaped benchmark function'
+        'description': 'Valley-shaped benchmark function',
+        'use_maxmin': False
     }
 }
 
@@ -73,3 +77,22 @@ def list_objectives():
 
 def get_objective(key):
     return OBJECTIVES.get(key)
+
+def generate_diverse_initial_population(objective_key, num_samples=20):
+    """Generate diverse initial population using MaxMin for given objective."""
+    obj = get_objective(objective_key)
+    if obj is None or not obj.get('use_maxmin', False):
+        return None
+    
+    diversifier = MaxMinDiversification(obj['bounds'], num_samples=num_samples)
+    diverse_samples = diversifier.generate_diverse_samples(candidates_per_iteration=100)
+    
+    # Create MDS visualization
+    param_names = obj.get('param_names', [f'Param {i}' for i in range(obj['dims'])])
+    diversifier.visualize_mds(
+        output_path=f"output/{obj['name'].replace(' ', '_')}_maxmin_mds.png",
+        compare_random=True,
+        param_names=param_names
+    )
+    
+    return diverse_samples
