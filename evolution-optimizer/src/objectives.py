@@ -1,10 +1,25 @@
 import math
 from diversification import MaxMinDiversification
 
+"funtions that are defined as objectives for optimization"
+
 def scherrer_from_vector(x):
     """Scherrer equation objective.
     x = [K, lambda_, B, theta]
     Returns crystal size D = (K * lambda) / (B * cos(theta))
+    
+    The Scherrer equation, in X-ray diffraction and crystallography, is a formula that relates the size 
+    of sub-micrometre crystallites in a solid to the broadening of a peak in a diffraction pattern.
+    It is often referred to, incorrectly, as a formula for particle size measurement or analysis. 
+    It is named after Paul Scherrer.[1][2] It is used in the determination of size of crystals in the form of powder.
+    https://en.wikipedia.org/wiki/Scherrer_equation
+    
+    K--> is a dimensionless shape factor, with a value close to unity. 
+    The shape factor has a typical value of about 0.9, but varies with the actual shape of the crystallite;
+    ʎ is the X-ray wavelength;
+    β is the line broadening at half the maximum intensity (FWHM), after subtracting the instrumental line broadening, in radians. 
+    θ is the Bragg angle.
+
     """
     K, lambda_, B, theta = x
     # Protect against invalid cos(theta) or zero B
@@ -28,6 +43,9 @@ def rosenbrock(x):
 
 # Registry of available objectives
 OBJECTIVES = {
+    
+    # maybe making this more flexible by allowing arbitrary bounds and dims in the future
+    
     '1': {
         'name': 'Scherrer equation (crystallite size)',
         'func': scherrer_from_vector,
@@ -79,7 +97,9 @@ def get_objective(key):
     return OBJECTIVES.get(key)
 
 def generate_diverse_initial_population(objective_key, num_samples=20):
+    
     """Generate diverse initial population using MaxMin for given objective."""
+    
     obj = get_objective(objective_key)
     if obj is None or not obj.get('use_maxmin', False):
         return None

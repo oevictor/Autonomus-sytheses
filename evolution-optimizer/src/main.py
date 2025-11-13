@@ -30,7 +30,7 @@ def _prepare_kwargs(cls, params):
     return out
 
 def main():
-    ui = UserInterface()
+    ui = UserInterface() #this will chance when we have a better interface problably using javascript
     
     print("=== Scherrer Equation Fitting with Genetic Algorithm ===")
     print("\nThis example will fit synthetic XRD data using the Scherrer equation.")

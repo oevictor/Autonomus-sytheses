@@ -3,7 +3,12 @@ import matplotlib.pyplot as plt
 import math
 import numpy as np
 
+'funtions for plotting optimization progress and Scherrer equation fits'
+
+
+
 def plot_history(history, maximize, out_dir="output", filename="optimization_progress.png"):
+    'function to plot optimization history'
     os.makedirs(out_dir, exist_ok=True)
     gens = list(range(len(history)))
     plt.figure(figsize=(6,4))
@@ -20,6 +25,7 @@ def plot_history(history, maximize, out_dir="output", filename="optimization_pro
     return out_path
 
 def scherrer_D(K, lam, B, theta):
+    'Calculate Scherrer equation, equation use to determinated the size of the crystalided, D value'
     c = math.cos(theta)
     if B <= 0 or abs(c) < 1e-12:
         return np.nan

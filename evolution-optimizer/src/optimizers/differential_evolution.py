@@ -1,9 +1,15 @@
 import numpy as np
 class DifferentialEvolution:
-    def __init__(self, population_size, mutation_factor, crossover_rate, max_generations):
+    def __init__(self, population_size=30, mutation_factor=0.8, crossover_rate=0.9,
+                 generations=100, max_generations=None, **kwargs):
+        """
+        Accept both 'generations' and 'max_generations' for compatibility.
+        """
         self.population_size = population_size
         self.mutation_factor = mutation_factor
         self.crossover_rate = crossover_rate
+        # prefer explicit generations, fall back to max_generations if provided
+        self.generations = int(generations if generations is not None else (max_generations or 100))
         self.max_generations = max_generations
         self.population = []
 
